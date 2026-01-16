@@ -33,7 +33,7 @@ We use Unity to visualize the live demo. To get started:
 1. Download the **Mocap Live Demo Unity package** from [this link](https://cloud.tsinghua.edu.cn/f/c1fded497d7f441793e0/?dl=1).
 2. Download and install the **Unity Editor version 2022.3.20f1c1** from the [Unity Hub](https://unity.com/download).
 3. Open the downloaded project in the Unity Editor.
-4. In the Unity Editor, go to the **Scenes** folder and load the **Motion Viewer** scene.
+4. In the Unity Editor, go to the **Scenes** folder and load the **MotionViewer** scene.
 ## Usage
 ### Android
 ### Huawei
