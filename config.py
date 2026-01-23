@@ -142,16 +142,6 @@ class joint_set:
     lower_body = [0, 1, 2, 4, 5, 7, 8, 10, 11]
     lower_body_parent = [None, 0, 0, 1, 2, 3, 4, 5, 6]
 
-class sensor: 
-    """Sensor parameters."""
-    device_ids = {
-        'Left_phone': 0,
-        'Left_watch': 1,
-        'Left_headphone': 2,
-        'Right_phone': 3,
-        'Right_watch': 4
-    }
-
 class Devices(Enum):
     """Device IDs."""
     Left_Phone = auto()
@@ -160,11 +150,19 @@ class Devices(Enum):
     Right_Phone = auto()
     Right_Watch = auto()
 
+class AndroidDevices:
+    device_ids = {
+        "Left_Watch": 0,
+        "Right_Phone": 3,
+    }
+
+    BUFFER_SIZE = 50
+
 class AppleDevices:
     device_ids = {
-        "Left_phone": 0,
-        "Left_watch": 1,
-        "Left_headphone": 2,
+        "Left_Watch": 0,
+        "Right_Phone": 3,
+        "Head": 4,
     }
     udp_ports = [8001, 8002, 8003]
 
@@ -172,9 +170,9 @@ class AppleDevices:
     
 class HuaweiDevices:
     device_ids = {
-        "phone": 0,
-        "watch": 1,
-        "headphone": 2,
+        "Left_Watch": 0,
+        "Right_Phone": 3,
+        "Head": 4,
     }
 
     BUFFER_SIZE = 50

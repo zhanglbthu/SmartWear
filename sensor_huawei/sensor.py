@@ -93,11 +93,7 @@ class HuaweiSensor:
             print(e, msg)
             os._exit(0)
             return
-
-        # 根据数据类型进行处理
-        # if data_type == 'raw_acceleration' or data_type == 'raw_acceleration_r':
-        #     curr_acc = np.array(values[0:3]).reshape(1, 3)
-        #     self.raw_acc_buffer[dev_id] = np.concatenate([self.raw_acc_buffer[dev_id][1:], curr_acc])
+        
         if data_type == 'acceleration':
             curr_acc = np.array(values[0:3]).reshape(1, 3)
             self.raw_acc_buffer[dev_id] = np.concatenate([self.raw_acc_buffer[dev_id][1:], curr_acc])
@@ -208,13 +204,6 @@ class CalibratedHuaweiSensor(HuaweiSensor):
         RSB1 = RMI.matmul(RIS_N1).transpose(1, 2).matmul(self._RMB_Npose)[self.mask]
         
         RSB = self._mean_rotation(RSB0, RSB1)
-
-        # import matplotlib.pyplot as plt
-        # plt.scatter([0], [0], label='origin')
-        # plt.scatter(p[:, 0], p[:, 1], label='raw')
-        # plt.scatter(p_filtered[:, 0], p_filtered[:, 1], label='filtered')
-        # plt.legend()
-        # plt.show()
 
         err_vertical = p_filtered[:, -1].abs()
         err_RSB = self._rotation_matrix_to_axis_angle(RSB0.bmm(RSB1.transpose(1, 2))).norm(dim=-1) * (180 / np.pi)

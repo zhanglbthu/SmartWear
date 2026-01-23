@@ -3,7 +3,7 @@ from articulate.utils.bullet.view_rotation_np import RotationViewer
 from articulate.utils.pygame import StreamingDataViewer
 from scipy.spatial.transform import Rotation as R
 from argparse import ArgumentParser
-from huawei_sensor.sensor import HuaweiSensor, CalibratedHuaweiSensor
+from sensor_huawei.sensor import HuaweiSensor, CalibratedHuaweiSensor
 from config import HuaweiDevices
 from articulate.utils.noitom.PN_lab import IMUSet, CalibratedIMUSet
 import articulate as art
