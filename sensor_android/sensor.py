@@ -53,16 +53,9 @@ class AndroidSensor:
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         # buffers
-        self.raw_acc_buffer = {
-            i: np.zeros((buffer_size, 3)) for i in self.ids
-        }
-        self.raw_ori_buffer = {
-            i: np.tile(np.array([[0, 0, 0, 1]]), (buffer_size, 1))
-            for i in self.ids
-        }
-        self.timestamp_buffer = {
-            i: np.zeros((buffer_size, 1)) for i in self.ids
-        }
+        self.raw_acc_buffer   = {i: np.zeros((buffer_size, 3)) for i in self.ids}
+        self.raw_ori_buffer   = {i: np.tile(np.array([[1, 0, 0, 0]]), (buffer_size, 1))for i in self.ids}
+        self.timestamp_buffer = {i: np.zeros((buffer_size, 1)) for i in self.ids}
 
         # receiver thread
         self.receiver = DataReceiver(self.sock, self, buffer_size=1024)
@@ -115,9 +108,8 @@ class AndroidSensor:
 
         aS = torch.tensor(aS, dtype=torch.float32)
         aI = RIS.matmul(aS.unsqueeze(-1)).squeeze(-1)
-        aI[:, 2] -= self.g
 
-        timestamp = torch.tensor(timestamp / 1000.0).float()
+        timestamp = torch.tensor(timestamp).float()
 
         return timestamp, aS, aI, RIS
 
@@ -139,7 +131,12 @@ class CalibratedAndroidSensor(AndroidSensor):
         self.N = len(self.ids)
         self.RMI = torch.eye(3).repeat(self.N, 1, 1)
         self.RSB = torch.eye(3).repeat(self.N, 1, 1)
-        self.mask = [0, 1, 2]
+        
+        # select Npose using device ids
+        self.Npose = self._RMB_Npose[self.ids]
+        
+        # print self.ids
+        print("Device IDs:", self.device_ids)
 
     def get_cali_matrices(self):
         return self.RMI.clone(), self.RSB.clone()
@@ -179,7 +176,7 @@ class CalibratedAndroidSensor(AndroidSensor):
             return input(s)
 
     def _walking_calibration(self, RMI_method, skip_input=False):
-        self._input('Huawei: Stand in N pose for 3 seconds, then step forward and stop in the N-pose again.', skip_input)
+        self._input('Stand in N pose for 3 seconds, then step forward and stop in the N-pose again.', skip_input)
         time.sleep(3)
         RIS_N0 = self.get()[4]
 
@@ -211,8 +208,8 @@ class CalibratedAndroidSensor(AndroidSensor):
         zI = self._normalize_tensor(xI.cross(yI, dim=-1))
         RMI = torch.stack([xI, yI, zI], dim=-2)
         
-        RSB0 = RMI.matmul(RIS_N0).transpose(1, 2).matmul(self._RMB_Npose)[self.mask]
-        RSB1 = RMI.matmul(RIS_N1).transpose(1, 2).matmul(self._RMB_Npose)[self.mask]
+        RSB0 = RMI.matmul(RIS_N0).transpose(1, 2).matmul(self.Npose)
+        RSB1 = RMI.matmul(RIS_N1).transpose(1, 2).matmul(self.Npose)
         
         RSB = self._mean_rotation(RSB0, RSB1)
 

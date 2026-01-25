@@ -47,7 +47,7 @@ class HuaweiSensor:
 
         # 初始化数据缓冲区
         self.raw_acc_buffer = {id: np.zeros((buffer_size, 3)) for id in self.device_ids.values()}
-        self.raw_ori_buffer = {id: np.array([[0, 0, 0, 1]] * buffer_size) for id in self.device_ids.values()}
+        self.raw_ori_buffer = {id: np.array([[1, 0, 0, 0]] * buffer_size) for id in self.device_ids.values()}
         self.timestamp_buffer = {id: np.zeros((buffer_size, 1)) for id in self.device_ids.values()}
 
     def get(self, device_id):

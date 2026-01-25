@@ -54,17 +54,15 @@ if __name__ == '__main__':
     while True:
         try:
             clock.tick(30)
-            print('fps=\r', clock.get_fps(), end='')
+            print(clock.get_fps(), end='')
 
             t, aS, aI, aM, RIS, RMB = sensor.get()
             
             if args.view_ori:
                 r_list = []
-                # qulitative visualization
+
                 RMB_i = RMB[id]
                 q_i = R.from_matrix(RMB_i).as_quat()
-                # convert to wxyz
-                q_i = np.array([q_i[3], q_i[0], q_i[1], q_i[2]])
 
                 rviewer.update_all([q_i])
 
@@ -73,7 +71,6 @@ if __name__ == '__main__':
             
         except Exception as e:
             print(f"Error occurred: {e}")
-            print(traceback.format_exc())  # 打印完整的异常追踪信息
             os._exit(0)
         except KeyboardInterrupt:
             print("Exiting...")
