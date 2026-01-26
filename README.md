@@ -12,7 +12,9 @@
 
 2. **手表** (若有): 从[链接](https://cloud.tsinghua.edu.cn/f/69fd969c4ab24b5da0dd/?dl=1)下载**WatchIMU.apk**并安装
 ### Huawei
+华为设备使用一个统一的应用，支持手机、手表和耳机，从[链接](https://cloud.tsinghua.edu.cn/f/e7f457569e2843859128/?dl=1)下载**HuaweiIMU.apk**并安装
 ### Apple
+苹果设备使用一个统一的应用，支持手机、手表和耳机，参考IMUPoser仓库[链接](https://github.com/FIGLAB/IMUPoser/tree/main/live)中的说明在手机侧下载应用
 ### Livedemo
 我们使用Unity来可视化实时演示。要开始：
 1. 从[这个链接](https://cloud.tsinghua.edu.cn/f/c1fded497d7f441793e0/?dl=1)下载**Mocap Live Demo Unity package**
@@ -23,8 +25,8 @@
 ### Android
 #### 准备工作: 打开数据传输应用并设置传感器序号和远程ip+端口
 <p align="center">
-  <img src="assets/phone_imu_2.jpg" width="45%">
-  <img src="assets/phone_imu_1.jpg" width="45%">
+  <img src="assets/phone_imu_2.jpg" width="40%">
+  <img src="assets/phone_imu_1.jpg" width="40%">
 </p>
 <p align="center">
   <em>左侧: 初始应用界面. 右侧: 点击Start后应用界面.</em>
@@ -65,9 +67,92 @@
   <img src="assets/unity_play.png" width="80%">
 </p>
 
-### Huawei
-### Apple
+3. 启动Livedemo脚本
+   ```bash
+   python livedemo.py --android --mocap
+   ```
+   - `--android`: 指定使用安卓设备
+   - `--mocap`: 使用unity进行实时动作捕捉可视化
 
+   运行成功后的效果如链接中的视频所示: [视频链接](https://cloud.tsinghua.edu.cn/f/4429eb8fd2ae4fbfbb6d/?dl=1)
+### Huawei
+#### 准备工作: 打开数据传输应用并设置传感器序号和远程ip+端口
+<p align="center">
+  <img src="assets/huawei_app.jpg" width="45%">
+</p>
+
+- 在设置好传感器序号和远程IP+端口后，点击上方开始按钮开始数据传输
+  - 在开始数据传输前点击上方的设备管理按钮，连接手表/耳机等设备
+  - 其他细节与安卓类似
+#### 传感器数据可视化
+可视化某个传感器得到的加速度和旋转信息，确保信息传输正常和数据合理
+1. 在config.py文件中设置device_ids
+   ```python
+   class HuaweiDevices:
+      device_ids = {
+         "Left_Watch": 0,
+         "Right_Phone": 3,
+         "Head": 4,
+      }
+   ```
+
+2. 启动数据可视化脚本
+   ```bash
+   python test_device.py --huawei --view_ori --view_acc --idx 0
+   ```
+   - `--huawei`: 指定使用华为设备
+   - `--view_ori`: 可视化方向信息，可选
+   - `--view_acc`: 可视化加速度信息，可选
+   - `--idx`: 可视化第几个传感器，0表示第一个传感器
+
+#### 实时动作捕捉Livedemo
+1. 在config.py文件中设置device_ids
+   - 与上面相同
+2. 通过Unity Hub打开Livedemo项目并启动play模式
+   - 与上面相同
+3. 启动Livedemo脚本
+   ```bash
+   python livedemo.py --huawei --mocap
+   ```
+   - `--huawei`: 指定使用华为设备
+   - `--mocap`: 使用unity进行实时动作捕捉可视化
+
+### Apple
+#### 准备工作: 打开数据传输应用并设置传感器序号和远程ip+端口
+- 设置细节参考[链接](https://github.com/FIGLAB/IMUPoser/blob/main/live/README.md)
+
+#### 传感器数据可视化
+可视化某个传感器得到的加速度和旋转信息，确保信息传输正常和数据合理
+1. 在config.py文件中设置device_ids
+   ```python
+   class AppleDevices:
+      device_ids = {
+         "Left_watch": 0,
+         "Left_phone": 2,
+         "Left_headphone": 4,
+      }
+   ```
+
+2. 启动数据可视化脚本
+   ```bash
+   python test_device.py --apple --view_ori --view_acc --idx 0
+   ```
+   - `--apple`: 指定使用苹果设备
+   - `--view_ori`: 可视化方向信息，可选
+   - `--view_acc`: 可视化加速度信息，可选
+   - `--idx`: 可视化第几个传感器，0表示第一个传感器
+
+#### 实时动作捕捉Livedemo
+1. 在config.py文件中设置device_ids
+   - 与上面相同
+2. 通过Unity Hub打开Livedemo项目并启动play模式
+   - 与上面相同
+3. 启动Livedemo脚本
+   ```bash
+   python livedemo.py --apple --mocap
+   ```
+   - `--apple`: 指定使用苹果设备
+   - `--mocap`: 使用unity进行实时动作捕捉可视化
 ## License
 
 MIT License - see the [LICENSE](LICENSE) file for details.

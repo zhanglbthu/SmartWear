@@ -170,9 +170,9 @@ class AppleDevices:
     
 class HuaweiDevices:
     device_ids = {
-        # "Left_Watch": 0,
+        "Left_Watch": 0,
         "Right_Phone": 3,
-        # "Head": 4,
+        "Head": 4,
     }
 
     BUFFER_SIZE = 50
