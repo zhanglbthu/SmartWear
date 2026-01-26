@@ -107,6 +107,10 @@ class AndroidSensor:
         )  # [N, 3, 3]
 
         aS = torch.tensor(aS, dtype=torch.float32)
+        
+        # change: convert as from left-hand to right-hand
+        aS = aS * torch.tensor([-1, -1, -1]).float()
+        
         aI = RIS.matmul(aS.unsqueeze(-1)).squeeze(-1)
 
         timestamp = torch.tensor(timestamp).float()

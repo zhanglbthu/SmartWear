@@ -152,17 +152,17 @@ class Devices(Enum):
 
 class AndroidDevices:
     device_ids = {
-        "Left_Watch": 0,
-        "Right_Phone": 3,
+        "Left_watch": 0,
+        "Right_phone": 3,
     }
 
     BUFFER_SIZE = 50
 
 class AppleDevices:
     device_ids = {
-        "Left_Watch": 0,
-        "Right_Phone": 3,
-        "Head": 4,
+        "Left_watch": 0,
+        "Left_phone": 2,
+        "Left_headphone": 4,
     }
     udp_ports = [8001, 8002, 8003]
 
@@ -170,9 +170,9 @@ class AppleDevices:
     
 class HuaweiDevices:
     device_ids = {
-        "Left_Watch": 0,
+        # "Left_Watch": 0,
         "Right_Phone": 3,
-        "Head": 4,
+        # "Head": 4,
     }
 
     BUFFER_SIZE = 50

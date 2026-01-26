@@ -69,6 +69,7 @@ if __name__ == '__main__':
     accs, oris, poses, trans = [], [], [], []
     
     ids = sensor.ids
+    print(f"Using device IDs: {ids}")
     
     idx = 0
     with torch.no_grad(), MotionViewer(1, overlap=False, names=['every_mocap']) as viewer:

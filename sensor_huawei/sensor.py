@@ -58,8 +58,8 @@ class HuaweiSensor:
         aS = accel_data
         aI = RIS.matmul(torch.tensor(aS, dtype=torch.float32).unsqueeze(-1)).squeeze(-1)
         
-        # aI[2]重力补偿
-        aI[:, 2] -= 9.8
+        # # aI[2]重力补偿
+        # aI[:, 2] -= 9.8
         
         # convert timestamp to tensor
         # * 小心精度损失
@@ -111,16 +111,16 @@ class HuaweiSensor:
         # self.timestamp_buffer[dev_id] = np.concatenate([self.timestamp_buffer[dev_id][1:], np.array([[timestamp]])])
 
 class CalibratedHuaweiSensor(HuaweiSensor):
-    # _RMB_Npose = torch.tensor([[[0, 1, 0], [-1, 0, 0], [0, 0, 1]],         # left wrist
-    #                            [[0, -1, 0], [1, 0, 0], [0, 0, 1]],         # right wrist
-    #                            [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # left thigh
-    #                            [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # right thigh
-    #                            [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # head
-    #                            [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]).float() # pelvis
+    _RMB_Npose = torch.tensor([[[0, 1, 0], [-1, 0, 0], [0, 0, 1]],         # left wrist
+                               [[0, -1, 0], [1, 0, 0], [0, 0, 1]],         # right wrist
+                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # left thigh
+                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # right thigh
+                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # head
+                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]).float() # pelvis
     
-    _RMB_Npose = torch.tensor([[[1, 0, 0], [0, 1, 0], [0, 0, 1]],            # right thigh
-                               [[0, 1, 0], [-1, 0, 0], [0, 0, 1]],           # left wrist
-                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]).float()   # head
+    # _RMB_Npose = torch.tensor([[[1, 0, 0], [0, 1, 0], [0, 0, 1]],            # right thigh
+    #                            [[0, 1, 0], [-1, 0, 0], [0, 0, 1]],           # left wrist
+    #                            [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]).float()   # head
     
     def __init__(self, device_ids, buffer_size=1024):
         super().__init__(device_ids=device_ids, buffer_size=buffer_size)
@@ -128,7 +128,7 @@ class CalibratedHuaweiSensor(HuaweiSensor):
         self.N = len(self.ids)
         self.RMI = torch.eye(3).repeat(self.N, 1, 1)
         self.RSB = torch.eye(3).repeat(self.N, 1, 1)
-        self.mask = [0, 1, 2]
+        self.Npose = self._RMB_Npose[self.ids]
 
     def get_cali_matrices(self):
         return self.RMI.clone(), self.RSB.clone()
@@ -200,8 +200,8 @@ class CalibratedHuaweiSensor(HuaweiSensor):
         zI = self._normalize_tensor(xI.cross(yI, dim=-1))
         RMI = torch.stack([xI, yI, zI], dim=-2)
         
-        RSB0 = RMI.matmul(RIS_N0).transpose(1, 2).matmul(self._RMB_Npose)[self.mask]
-        RSB1 = RMI.matmul(RIS_N1).transpose(1, 2).matmul(self._RMB_Npose)[self.mask]
+        RSB0 = RMI.matmul(RIS_N0).transpose(1, 2).matmul(self.Npose)
+        RSB1 = RMI.matmul(RIS_N1).transpose(1, 2).matmul(self.Npose)
         
         RSB = self._mean_rotation(RSB0, RSB1)
 

@@ -148,16 +148,16 @@ class AppleSensor:
 
 # Calibrated AppleSensor 类：在 AppleSensor 基础上添加校准功能
 class CalibratedAppleSensor(AppleSensor):
-    # _RMB_Npose = torch.tensor([[[0, 1, 0], [-1, 0, 0], [0, 0, 1]],         # left wrist
-    #                            [[0, -1, 0], [1, 0, 0], [0, 0, 1]],         # right wrist
-    #                            [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # left thigh
-    #                            [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # right thigh
-    #                            [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # head
-    #                            [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]).float() # pelvis
+    _RMB_Npose = torch.tensor([[[0, 1, 0], [-1, 0, 0], [0, 0, 1]],         # left wrist
+                               [[0, -1, 0], [1, 0, 0], [0, 0, 1]],         # right wrist
+                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # left thigh
+                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # right thigh
+                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # head
+                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]).float() # pelvis
     
-    _RMB_Npose = torch.tensor([[[1, 0, 0], [0, 1, 0], [0, 0, 1]],            # right thigh
-                               [[0, 1, 0], [-1, 0, 0], [0, 0, 1]],           # left wrist
-                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]).float()   # head
+    # _RMB_Npose = torch.tensor([[[1, 0, 0], [0, 1, 0], [0, 0, 1]],            # right thigh
+    #                            [[0, 1, 0], [-1, 0, 0], [0, 0, 1]],           # left wrist
+    #                            [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]).float()   # head
     
     def __init__(self, udp_ports, device_ids, buffer_size=1024):
         super().__init__(udp_ports, device_ids, buffer_size)
@@ -165,7 +165,8 @@ class CalibratedAppleSensor(AppleSensor):
         self.N = len(self.ids)
         self.RMI = torch.eye(3).repeat(self.N, 1, 1)
         self.RSB = torch.eye(3).repeat(self.N, 1, 1)
-        self.mask = [0, 1, 2]
+        self.Npose = self._RMB_Npose[self.ids]
+        print("Device IDs:", self.device_ids)
 
     def get_cali_matrices(self):
         return self.RMI.clone(), self.RSB.clone()
@@ -237,8 +238,8 @@ class CalibratedAppleSensor(AppleSensor):
         zI = self._normalize_tensor(xI.cross(yI, dim=-1))
         RMI = torch.stack([xI, yI, zI], dim=-2)
         
-        RSB0 = RMI.matmul(RIS_N0).transpose(1, 2).matmul(self._RMB_Npose)[self.mask]
-        RSB1 = RMI.matmul(RIS_N1).transpose(1, 2).matmul(self._RMB_Npose)[self.mask]
+        RSB0 = RMI.matmul(RIS_N0).transpose(1, 2).matmul(self.Npose)
+        RSB1 = RMI.matmul(RIS_N1).transpose(1, 2).matmul(self.Npose)
         
         RSB = self._mean_rotation(RSB0, RSB1)
 
