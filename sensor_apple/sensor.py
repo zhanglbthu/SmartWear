@@ -220,7 +220,7 @@ class CalibratedAppleSensor(AppleSensor):
             t = t[0][1]
             if t != last_t:
                 dt = t - last_t
-
+                print('dt: %.3f' % dt)
                 last_t = t
                 p += dt * v + 0.5 * dt * dt * aI
                 v += dt * aI

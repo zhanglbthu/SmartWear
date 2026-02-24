@@ -43,7 +43,7 @@ if __name__ == '__main__':
         sensor.calibrate("walking_6dof")
         ids = [id for id in HuaweiDevices.device_ids.values()]
     elif args.apple:
-        sensor = CalibratedAppleSensor(device_ids=AppleDevices.device_ids)
+        sensor = CalibratedAppleSensor(AppleDevices.udp_ports, device_ids=AppleDevices.device_ids)
         sensor.calibrate("walking_6dof")
         ids = [id for id in AppleDevices.device_ids.values()]
     else:

@@ -12,7 +12,6 @@ class train_hypers:
     device = 0
     lr = 1e-3
 
-
 class finetune_hypers:
     """Hyperparamters for finetuning."""
     batch_size = 32
@@ -21,7 +20,6 @@ class finetune_hypers:
     accelerator = "gpu"
     device = 0
     lr = 5e-5
-
 
 class paths:
     """Relevant paths for MobilePoser. Change as necessary."""
@@ -172,7 +170,7 @@ class HuaweiDevices:
     device_ids = {
         "Left_Watch": 0,
         "Right_Phone": 3,
-        "Head": 4,
+        # "Head": 4,
     }
 
     BUFFER_SIZE = 50

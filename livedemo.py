@@ -72,7 +72,7 @@ if __name__ == '__main__':
     print(f"Using device IDs: {ids}")
     
     idx = 0
-    with torch.no_grad(), MotionViewer(1, overlap=False, names=['every_mocap']) as viewer:
+    with torch.no_grad(), MotionViewer(1, overlap=False, names=['mocap']) as viewer:
         while True:
             try:
                 clock.tick(30)
