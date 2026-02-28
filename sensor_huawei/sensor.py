@@ -59,7 +59,7 @@ class HuaweiSensor:
         aI = RIS.matmul(torch.tensor(aS, dtype=torch.float32).unsqueeze(-1)).squeeze(-1)
         
         # # aI[2]重力补偿
-        # aI[:, 2] -= 9.8
+        aI[:, 2] -= 9.8
         
         # convert timestamp to tensor
         # * 小心精度损失
@@ -94,11 +94,10 @@ class HuaweiSensor:
             os._exit(0)
             return
         
-        if data_type == 'acceleration':
-            curr_acc = np.array(values[0:3]).reshape(1, 3)
-            self.raw_acc_buffer[dev_id] = np.concatenate([self.raw_acc_buffer[dev_id][1:], curr_acc])
-            
-        if data_type == 'raw_acceleration_r':
+        # if dev_id == 4:
+        #     print(f"Received data from device {dev_id}: type={data_type}, timestamp={timestamp}, values={values}")
+        
+        if data_type == 'raw_acceleration' or data_type == 'raw_acceleration_r':
             curr_acc = np.array(values[0:3]).reshape(1, 3)
             self.raw_acc_buffer[dev_id] = np.concatenate([self.raw_acc_buffer[dev_id][1:], curr_acc])
 
@@ -181,6 +180,7 @@ class CalibratedHuaweiSensor(HuaweiSensor):
         while last_t - begin_t < 3:
             t, _, aI, _, _, _ = self.get()
             t = t[0][0]
+
             if t != last_t:
                 dt = 0.01
                 last_t = t

@@ -1,10 +1,10 @@
 # Wearable Device IMU Data Collection
 
 ## Introduction
-这个仓库提供了从日常可穿戴设备（如智能手机、智能手表和耳机）收集IMU等传感器数据并进行动作捕捉Livedemo演示的工具和示例代码。支持的平台包括Android、华为和苹果设备
+这个仓库提供了从日常可穿戴设备（如智能手机、智能手表和耳机）或专业IMU设备（Noitom）收集IMU等传感器数据并进行动作捕捉Livedemo演示的工具和示例代码。支持的平台包括Android、华为和苹果设备
 
 ## System Overview
-支持安卓系统的手机+手表，华为系统的手机+手表+耳机，苹果系统的手机+手表+耳机的传感器数据传输及Livedemo可视化演示
+支持安卓系统的手机+手表，华为系统的手机+手表+耳机，苹果系统的手机+手表+耳机以及Noitom的传感器数据传输及Livedemo可视化演示
 
 ## Installation
 ### Android
@@ -15,6 +15,20 @@
 华为设备使用一个统一的应用，支持手机、手表和耳机，从[链接](https://cloud.tsinghua.edu.cn/f/e7f457569e2843859128/?dl=1)下载**HuaweiIMU.apk**并安装
 ### Apple
 苹果设备使用一个统一的应用，支持手机、手表和耳机，参考IMUPoser仓库[链接](https://github.com/FIGLAB/IMUPoser/tree/main/live)中的说明在手机侧下载应用
+### Noitom
+Noitom设备使用专业的软件，包括：
+#### UNI Tool V2.0
+主要用于校准Noitom IMU的磁力计
+<p align="center">
+  <img src="assets/uni_tool.png" width="100%">
+</p>
+
+#### Axis Lab
+主要用于连接Noitom IMU并进行数据传输
+<p align="center">
+  <img src="assets/axis_lab.png" width="100%">
+</p>
+ 
 ### Livedemo
 我们使用Unity来可视化实时演示。要开始：
 1. 从[这个链接](https://cloud.tsinghua.edu.cn/f/c1fded497d7f441793e0/?dl=1)下载**Mocap Live Demo Unity package**
@@ -75,6 +89,12 @@
    - `--mocap`: 使用unity进行实时动作捕捉可视化
 
    运行成功后的效果如链接中的视频所示: [视频链接](https://cloud.tsinghua.edu.cn/f/4429eb8fd2ae4fbfbb6d/?dl=1)
+4. Calibration
+在运行Livedemo脚本之后，运行mocap算法之前，需要进行传感器的Calibration操作，相关知识见[IMU Calibration笔记](https://www.notion.so/IMU-Calibration-315b6a7dd7638071ab12c24965f4e3e4)，具体而言
+   - 当终端显示`Stand in N pose for 3 seconds, then step forward and stop in the N-pose again`时，按回车键，保持N-Pose站立3s
+     - N-Pose: 双脚与肩同宽，双臂自然下垂，掌心向内
+   - 等到终端显示`Step forward now`时，向前迈出一步并停在N-Pose姿势
+   - 若终端显示`Calibration succeeded`则说明校准成功，若显示`Calibration failed`则说明校准失败，需要重新进行上述步骤
 ### Huawei
 #### 准备工作: 打开数据传输应用并设置传感器序号和远程ip+端口
 <p align="center">

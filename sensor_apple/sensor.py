@@ -218,9 +218,9 @@ class CalibratedAppleSensor(AppleSensor):
         while last_t - begin_t < 3:
             t, _, aI, _, _, _ = self.get()
             t = t[0][1]
+
             if t != last_t:
                 dt = t - last_t
-                print('dt: %.3f' % dt)
                 last_t = t
                 p += dt * v + 0.5 * dt * dt * aI
                 v += dt * aI

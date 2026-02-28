@@ -53,7 +53,6 @@ class model_config:
     future_frames = 5
     total_frames = past_frames + future_frames
 
-
 class amass:
     """AMASS dataset information."""
     # device-location combinationsa
@@ -81,7 +80,6 @@ class amass:
     pred_joints_set = [*range(24)]
     joint_sets = [18, 19, 1, 2, 15, 0]
     ignored_joints = list(set(pred_joints_set) - set(joint_sets))
-
 
 class datasets:
     """Dataset information."""
@@ -170,7 +168,7 @@ class HuaweiDevices:
     device_ids = {
         "Left_Watch": 0,
         "Right_Phone": 3,
-        # "Head": 4,
+        "Head": 4,
     }
 
     BUFFER_SIZE = 50

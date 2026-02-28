@@ -339,7 +339,8 @@ if __name__ == '__main__':
                 virtual_acc[device_id] = global_a.reshape(1, 3)
                 virtual_ori[device_id] = global_o
 
-                save_s += f"{' '.join([str(x) for x in timestamps])} {' '.join(list(global_a.flatten().astype(str)))} {' '.join(list(global_o.flatten().astype(str)))}"
+                # save_s += f"{' '.join([str(x) for x in timestamps])} {' '.join(list(global_a.flatten().astype(str)))} {' '.join(list(global_o.flatten().astype(str)))}"
+                save_s += f"{curr_timestamp} {' '.join(list(global_a.flatten().astype(str)))} {' '.join(list(global_o.flatten().astype(str)))}"
 
                 if _save:
                     # save to the file here

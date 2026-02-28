@@ -51,8 +51,8 @@ if __name__ == '__main__':
 
     if args.noitom:
         # add ground truth readings
-        imu_set = CalibratedIMUSet()
-        imu_set.calibrate('walking_9dof')
+        sensor = CalibratedIMUSet()
+        sensor.calibrate('walking_9dof')
     
     if args.apple:
         sensor = CalibratedAppleSensor(AppleDevices.udp_ports, AppleDevices.device_ids)
