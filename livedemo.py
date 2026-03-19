@@ -4,11 +4,11 @@ from pygame.time import Clock
 import articulate as art
 import os
 from config import *
-from articulate.utils.noitom import *
+# from articulate.utils.noitom import *
 from articulate.utils.unity import MotionViewer
 
-from articulate.utils.pygame import StreamingDataViewer
-from articulate.utils.bullet.view_rotation_np import RotationViewer
+# from articulate.utils.pygame import StreamingDataViewer
+# from articulate.utils.bullet.view_rotation_np import RotationViewer
 from auxiliary import calibrate_q, quaternion_inverse
 from utils.model_utils import load_model
 import numpy as np
@@ -19,7 +19,7 @@ from sensor_apple.sensor import AppleSensor, CalibratedAppleSensor
 from sensor_huawei.sensor import HuaweiSensor, CalibratedHuaweiSensor
 from sensor_android.sensor import AndroidSensor, CalibratedAndroidSensor
 from scipy.spatial.transform import Rotation as R
-from articulate.utils.noitom.PN_lab import CalibratedIMUSet
+# from articulate.utils.noitom.PN_lab import CalibratedIMUSet
 import keyboard
 import traceback
 import datetime
@@ -30,7 +30,7 @@ body_model = art.ParametricModel(paths.smpl_file, device='cuda')
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--name', type=str, default='default')
-    parser.add_argument('--noitom', action='store_true', help='use noitom imu')
+    # parser.add_argument('--noitom', action='store_true', help='use noitom imu')
     parser.add_argument('--apple', action='store_true', help='use apple imu')
     parser.add_argument('--huawei', action='store_true', help='use huawei imu')
     parser.add_argument('--android', action='store_true', help='use android imu')
@@ -44,15 +44,10 @@ if __name__ == '__main__':
     
     # set mobileposer network
     if args.mocap:
-        ckpt_path = "data/checkpoints/base_model.pth"
+        ckpt_path = "data/checkpoints/full_model.pth"
         net = load_model(ckpt_path)
         net.eval()
         print('Mobileposer model loaded.')
-
-    if args.noitom:
-        # add ground truth readings
-        sensor = CalibratedIMUSet()
-        sensor.calibrate('walking_9dof')
     
     if args.apple:
         sensor = CalibratedAppleSensor(AppleDevices.udp_ports, AppleDevices.device_ids)
@@ -76,20 +71,21 @@ if __name__ == '__main__':
         while True:
             try:
                 clock.tick(30)
-                ori = torch.zeros(5, 3, 3).to(device)
-                a   = torch.zeros(5, 3).to(device)
+                ori = torch.zeros(7, 3, 3).to(device)
+                a   = torch.zeros(7, 3).to(device)
                     
                 # device readings
                 t, aS, aI, aM, RIS, RMB = sensor.get()
+                
                 ori[ids] = RMB.to(device)
                 a[ids]   = aM.to(device)
-
+                
                 oris.append(ori.clone())
                 accs.append(a.clone())
 
                 if args.mocap:
-                    ori = ori.view(5, 3, 3)
-                    a = a.view(5, 3)
+                    ori = ori[:5].view(5, 3, 3)
+                    a = a[:5].view(5, 3)
 
                     a = a / amass.acc_scale
                     

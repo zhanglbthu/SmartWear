@@ -7,7 +7,6 @@ from sensor_android.sensor import AndroidSensor, CalibratedAndroidSensor
 from sensor_apple.sensor import AppleSensor, CalibratedAppleSensor
 from sensor_huawei.sensor import HuaweiSensor, CalibratedHuaweiSensor
 from config import AndroidDevices, HuaweiDevices, AppleDevices
-from articulate.utils.noitom.PN_lab import IMUSet, CalibratedIMUSet
 import articulate as art
 import torch
 import os
@@ -25,14 +24,10 @@ if __name__ == '__main__':
     parser.add_argument('--idx', type=int, default=0, help='device index')
     parser.add_argument('--view_ori', action='store_true', help='view orientation data')
     parser.add_argument('--view_acc', action='store_true', help='view acceleration data')
+    parser.add_argument('--view_sync', action='store_true', help='view sync status')
     args = parser.parse_args()
 
-    clock = Clock()
-
-    if args.view_acc:
-        sviewer = StreamingDataViewer(3, y_range=(-20, 20), window_length=200, names=['X', 'Y', 'Z']); sviewer.connect()
-    if args.view_ori:
-        rviewer = RotationViewer(1, order='wxyz'); rviewer.connect()            
+    clock = Clock()        
     
     if args.android:
         sensor = CalibratedAndroidSensor(device_ids=AndroidDevices.device_ids)
@@ -50,7 +45,16 @@ if __name__ == '__main__':
         print("No valid sensor selected.")
         os._exit(0)
 
+    if args.view_acc:
+        sviewer = StreamingDataViewer(3, y_range=(-20, 20), window_length=200, names=['X', 'Y', 'Z']); sviewer.connect()
+    if args.view_sync:
+        sviewer = StreamingDataViewer(len(ids), y_range=(-20, 20), window_length=200, names=[f'Device {id}' for id in ids]); sviewer.connect()
+    if args.view_ori:
+        rviewer = RotationViewer(1, order='wxyz'); rviewer.connect()    
+
     id = args.idx
+    acc_list = []
+    
     while True:
         try:
             clock.tick(30)
@@ -67,7 +71,20 @@ if __name__ == '__main__':
                 rviewer.update_all([q_i])
 
             if args.view_acc:
+                # print acc
+                acc_list.append(aI[id].cpu().numpy())
+                # if len(acc_list) > 200:
+                #     # calculate mean and std
+                #     acc_array = np.array(acc_list)
+                #     mean = np.mean(acc_array, axis=0)
+                #     std = np.std(acc_array, axis=0)
+                #     print(f"Mean: {mean}, Std: {std}")
+                #     os._exit(0)
                 sviewer.plot(aI[id])
+            if args.view_sync:
+                # 可视化每个设备的aI的模长，检查同步状态
+                sync_values = [torch.norm(aI[i]).item() for i in range(len(ids))]
+                sviewer.plot(sync_values)
             
         except Exception as e:
             print(f"Error occurred: {e}")

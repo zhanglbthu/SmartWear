@@ -40,15 +40,45 @@ class HuaweiSensor:
         
         # 初始化设备ID
         self.device_ids = device_ids or {}
+        self.ids = [id for id in device_ids.values()]
 
         # 初始化数据接收线程
         self.receiver = DataReceiver(self.sock, self, buffer_size)
         self.receiver.start()
 
         # 初始化数据缓冲区
-        self.raw_acc_buffer = {id: np.zeros((buffer_size, 3)) for id in self.device_ids.values()}
-        self.raw_ori_buffer = {id: np.array([[1, 0, 0, 0]] * buffer_size) for id in self.device_ids.values()}
+        self.raw_acc_buffer   = {id: np.zeros((buffer_size, 3)) for id in self.device_ids.values()}
+        self.raw_ori_buffer   = {id: np.array([[1, 0, 0, 0]] * buffer_size) for id in self.device_ids.values()}
         self.timestamp_buffer = {id: np.zeros((buffer_size, 1)) for id in self.device_ids.values()}
+        
+        # # 计算acc bias
+        # self.acc_bias = np.zeros((len(self.device_ids), 3))
+        # self.cal_acc_bias()
+    
+    # # calculate acc bias
+    # def cal_acc_bias(self, window=100):
+    #     print("Calculating accelerometer bias...")
+    #     # acc_samples = {id: [] for id in self.device_ids.values()}
+    #     # acc_samples不用为字典，可以为一个列表
+    #     acc_samples = []
+    #     start_time = time.time()
+        
+    #     while time.time() - start_time < 3:  # 收集3秒钟的数据
+    #         # for id in self.device_ids.values():
+    #         #     # latest_acc = self.raw_acc_buffer[id][-1]
+    #         #     # acc_samples[id].append(latest_acc)
+    #         print("self.ids:", self.ids)
+    #         _, _, aI, _ = self.get() # aI: [N, 3]
+    #         acc_samples.append(aI.cpu().numpy())
+            
+    #         time.sleep(0.01)  # 每10ms采样一次
+        
+    #     if len(acc_samples) > 0:
+    #         acc_samples = np.array(acc_samples)  # 转换为NumPy数组
+    #         self.acc_bias = acc_samples.mean(axis=0)  # 计算每个设备的平均加速度作为偏置
+    #         print("Accelerometer bias calculated:", self.acc_bias)
+    #     else:
+    #         print("No accelerometer data collected for bias calculation.")
 
     def get(self, device_id):
         """获取指定设备最新的加速度和四元数数据"""
@@ -58,7 +88,6 @@ class HuaweiSensor:
         aS = accel_data
         aI = RIS.matmul(torch.tensor(aS, dtype=torch.float32).unsqueeze(-1)).squeeze(-1)
         
-        # # aI[2]重力补偿
         aI[:, 2] -= 9.8
         
         # convert timestamp to tensor
@@ -94,14 +123,11 @@ class HuaweiSensor:
             os._exit(0)
             return
         
-        # if dev_id == 4:
-        #     print(f"Received data from device {dev_id}: type={data_type}, timestamp={timestamp}, values={values}")
-        
-        if data_type == 'raw_acceleration' or data_type == 'raw_acceleration_r':
+        if data_type == 'raw_acceleration' or data_type == 'raw_acceleration_l':
             curr_acc = np.array(values[0:3]).reshape(1, 3)
             self.raw_acc_buffer[dev_id] = np.concatenate([self.raw_acc_buffer[dev_id][1:], curr_acc])
 
-        elif data_type == 'orientation' or data_type == 'orientation_right':
+        elif data_type == 'orientation' or data_type == 'orientation_left':
             curr_ori = np.array(values[0:4]).reshape(1, 4)
             self.raw_ori_buffer[dev_id] = np.concatenate([self.raw_ori_buffer[dev_id][1:], curr_ori])
             self.timestamp_buffer[dev_id] = np.concatenate([self.timestamp_buffer[dev_id][1:], np.array([[timestamp]])])
@@ -110,12 +136,13 @@ class HuaweiSensor:
         # self.timestamp_buffer[dev_id] = np.concatenate([self.timestamp_buffer[dev_id][1:], np.array([[timestamp]])])
 
 class CalibratedHuaweiSensor(HuaweiSensor):
-    _RMB_Npose = torch.tensor([[[0, 1, 0], [-1, 0, 0], [0, 0, 1]],         # left wrist
+    _RMB_Npose = torch.tensor([[[0, 1, 0],  [-1, 0, 0], [0, 0, 1]],         # left wrist
                                [[0, -1, 0], [1, 0, 0], [0, 0, 1]],         # right wrist
-                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # left thigh
-                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # right thigh
-                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],          # head
-                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]).float() # pelvis
+                               [[1, 0, 0],  [0, 1, 0],  [0, 0, 1]],          # left thigh
+                               [[1, 0, 0],  [0, 1, 0],  [0, 0, 1]],          # right thigh
+                               [[1, 0, 0],  [0, 1, 0],  [0, 0, 1]],          # head
+                               [[1, 0, 0],  [0, 1, 0],  [0, 0, 1]],          # left foot
+                               [[1, 0, 0],  [0, 1, 0],  [0, 0, 1]]]).float() # right foot
     
     # _RMB_Npose = torch.tensor([[[1, 0, 0], [0, 1, 0], [0, 0, 1]],            # right thigh
     #                            [[0, 1, 0], [-1, 0, 0], [0, 0, 1]],           # left wrist
@@ -199,6 +226,11 @@ class CalibratedHuaweiSensor(HuaweiSensor):
         xI = self._normalize_tensor(yI.cross(zI, dim=-1))
         zI = self._normalize_tensor(xI.cross(yI, dim=-1))
         RMI = torch.stack([xI, yI, zI], dim=-2)
+        
+        # print('RMI:', RMI)
+        # # RMI: [5, 3, 3], 将RMI的前四项都设置为最后一项
+        # RMI = RMI[-1:].repeat(self.N, 1, 1)
+        
         
         RSB0 = RMI.matmul(RIS_N0).transpose(1, 2).matmul(self.Npose)
         RSB1 = RMI.matmul(RIS_N1).transpose(1, 2).matmul(self.Npose)

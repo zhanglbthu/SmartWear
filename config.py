@@ -35,7 +35,7 @@ class paths:
     raw_totalcapture_official = root_dir / "/root/autodl-tmp/data/TotalCapture/official"
     calibrated_totalcapture = root_dir / "/root/autodl-tmp/data/TotalCapture/calibrated" 
     temp_dir = Path("data/livedemo/temp")
-    live_record_dir = Path("data/livedemo/recordings")
+    live_record_dir = Path("data/recording")
 
 class model_config:
     """MobilePoser Model configurations."""
@@ -167,8 +167,12 @@ class AppleDevices:
 class HuaweiDevices:
     device_ids = {
         "Left_Watch": 0,
+        "Right_Watch": 1,
+        "Left_Phone": 2,
         "Right_Phone": 3,
         "Head": 4,
+        "Left_STag": 5,
+        "Right_STag": 6,
     }
 
     BUFFER_SIZE = 50

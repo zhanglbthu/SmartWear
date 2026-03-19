@@ -4,7 +4,7 @@ __all__ = ['set_pose', 'smpl_to_rbdl', 'rbdl_to_smpl', 'normalize_and_concat', '
 import enum
 import torch
 import numpy as np
-import pybullet as p
+# import pybullet as p
 from articulate.math import rotation_matrix_to_euler_angle_np, euler_angle_to_rotation_matrix_np, euler_convert_np, \
     normalize_angle
 
@@ -27,13 +27,13 @@ _rbdl_to_bullet = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
 smpl_to_rbdl_data = _smpl_to_rbdl
 
 
-def set_pose(id_robot, q):
-    r"""
-    Set the robot configuration.
-    """
-    p.resetJointStatesMultiDof(id_robot, list(range(1, p.getNumJoints(id_robot))), q[6:][_rbdl_to_bullet].reshape(-1, 1))
-    glb_rot = p.getQuaternionFromEuler(euler_convert_np(q[3:6], 'zyx', 'xyz')[[2, 1, 0]])
-    p.resetBasePositionAndOrientation(id_robot, q[:3], glb_rot)
+# def set_pose(id_robot, q):
+#     r"""
+#     Set the robot configuration.
+#     """
+#     p.resetJointStatesMultiDof(id_robot, list(range(1, p.getNumJoints(id_robot))), q[6:][_rbdl_to_bullet].reshape(-1, 1))
+#     glb_rot = p.getQuaternionFromEuler(euler_convert_np(q[3:6], 'zyx', 'xyz')[[2, 1, 0]])
+#     p.resetBasePositionAndOrientation(id_robot, q[:3], glb_rot)
 
 
 def smpl_to_rbdl(poses, trans):
